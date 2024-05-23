@@ -1,0 +1,10 @@
+// STM32H723
+
+using "platforms/cpus/stm32h723zg.repl"
+
+// Micrel KSZ8081RNA PHY
+phy: Network.EthernetPhysicalLayer @ ethernet 0
+    Id1: 0x0022
+    Id2: 0x1560
+    AutoNegotiationAdvertisement: 0x00A1
+    AutoNegotiationLinkPartnerBasePageAbility: 0x0001

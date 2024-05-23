@@ -7,21 +7,24 @@ Resource                      ${RENODEKEYWORDS}
 
 *** Variables ***
 ${SCRIPT}                     ${CURDIR}/test.resc
-${UART}                       sysbus.uart
+${UARTS}                      sysbus.usart3
+${UARTC}                      sysbus.usart6
 
 
 *** Keywords ***
 Load Script
     Execute Script            ${SCRIPT}
-    Create Terminal Tester    ${UART}
-
+    Create Log Tester         1
 
 *** Test Cases ***
 Should Run Test Case
+    [Timeout]                 20 seconds
     Load Script
+
+    ${us}=                    Create Terminal Tester    ${UARTS}     machine=server
+    ${uc}=                    Create Terminal Tester    ${UARTC}     machine=client
+
     Start Emulation
-    Wait For Prompt On Uart     uart:~$
-    Write Line To Uart
-    Wait For Prompt On Uart     uart:~$
-    Write Line To Uart          demo ping
-    Wait For Line On Uart       pong
+
+    Wait For Line On Uart     EXIT:<done>                                                                              testerId=${us}
+    Wait For Line On Uart     EXIT:<done>                                                                              testerId=${uc}

@@ -1,20 +1,62 @@
-# This is a sample RESC script.
-# Please change this file and test.robot to include all necessary steps to reproduce your issue.
-# Make this repository as self contained as possible.
-#
-
-$name?="Mi-V"
+:name: STM32F2/H7 Ethernet
+:description: This script runs applications on a STM32F207 and STM32H723 platforms
 
 using sysbus
-mach create $name
-machine LoadPlatformDescription @platforms/boards/miv-board.repl
 
-$bin?=@https://dl.antmicro.com/projects/renode/shell-demo-miv.elf-s_803248-ea4ddb074325b2cc1aae56800d099c7cf56e592a
+path add $ORIGIN
 
-showAnalyzer uart
+$logfile ?= @artifacts/renode.log
+
+$app_server ?= @ecos_stm32h723_socket
+$app_client ?= @ecos_stm32f207_client
+
+include @platforms/peripherals/STM32H7_PWR.cs
+
+mach create "server"
+machine LoadPlatformDescription $ORIGIN/platforms/boards/stm32h723.repl
+showAnalyzer sysbus.usart3
+
+mach create "client"
+machine LoadPlatformDescription $ORIGIN/platforms/boards/stm32f207.repl
+showAnalyzer sysbus.usart6
+
+: Since the reset macro is executed automatically by renode on a CPU
+: reset we use startofday for the initial test setup, and allow reset
+: to be used to test firmware triggered (soft) CPU resets, e.g. to
+: test in-field firmware updates, watchdog events, etc.
+
+macro startofday
+"""
+    echo "NOTE: We limit NVIC log messages to ERRORs to avoid flooding the log with unhandled cache operations"
+
+    emulation CreateSwitch "switch1"
+
+    echo "logFile $logfile"
+
+    mach set "server"
+    connector Connect sysbus.ethernet switch1
+    sysbus LoadELF $app_server
+    logLevel 3 nvic
+
+    mach set "client"
+    connector Connect sysbus.ethernet switch1
+    sysbus LoadELF $app_client
+    logLevel 3 nvic
+"""
 
 macro reset
 """
-    sysbus LoadELF $bin
+    mach set "server"
+    set flash_sp `sysbus ReadDoubleWord 0x08000000`
+    set flash_pc `sysbus ReadDoubleWord 0x08000004`
+    cpu SP $flash_sp
+    cpu PC $flash_pc
+
+    mach set "client"
+    set flash_sp `sysbus ReadDoubleWord 0x08000000`
+    set flash_pc `sysbus ReadDoubleWord 0x08000004`
+    cpu SP $flash_sp
+    cpu PC $flash_pc
 """
-runMacro $reset
+
+runMacro $startofday
