@@ -254,12 +254,14 @@ rng: Miscellaneous.STM32F4_RNG @ sysbus 0x48021800
 // 0x40040000 - 0x4007FFFF  USB1_OTG_HS
 
 // 0x40028000 - 0x400293FF  EMAC
-ethernet: Network.SynopsysDWCEthernetQualityOfService @ {
-    sysbus 0x40028000;
-    sysbus new Bus.BusMultiRegistration { address: 0x40028C00; size: 0x200; region: "mtl" };
-    sysbus new Bus.BusMultiRegistration { address: 0x40029000; size: 0x200; region: "dma" }
-    }
-    systemClockFrequency: 50000000
+//ethernet: Network.SynopsysDWCEthernetQualityOfService @ {
+//    sysbus 0x40028000;
+//    sysbus new Bus.BusMultiRegistration { address: 0x40028C00; size: 0x200; region: "mtl" };
+//    sysbus new Bus.BusMultiRegistration { address: 0x40029000; size: 0x200; region: "dma" }
+//    }
+//    systemClockFrequency: 50000000
+//    -> nvic@61
+ethernet: Network.STM32H7_EthernetMAC @ sysbus 0x40028000
     -> nvic@61
 
 // 0x40022000 - 0x400223FF  ADC1/ADC2
