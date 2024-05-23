@@ -2,8 +2,16 @@
 Suite Setup                   Setup
 Suite Teardown                Teardown
 Test Setup                    Reset Emulation
-Test Teardown                 Test Teardown
+Test Teardown                 Custom Test Teardown
 Resource                      ${RENODEKEYWORDS}
+
+
+*** Keywords ***
+Custom Test Teardown
+    Log To Console            !!!! Custom Test Teardown !!!! since normal teardown hangs
+    #Test Teardown
+    Log To Console            !!!! Completed !!!!
+
 
 *** Variables ***
 ${SCRIPT}                     ${CURDIR}/test.resc
