@@ -11,6 +11,8 @@ $app_server ?= @ecos_stm32h723_socket
 $app_client ?= @ecos_stm32f207_client
 
 include @platforms/peripherals/STM32H7_PWR.cs
+include @platforms/peripherals/SynopsysEthernetMAC_Fixed.cs
+include @platforms/peripherals/STM32H7_EthernetMAC.cs
 
 mach create "server"
 machine LoadPlatformDescription $ORIGIN/platforms/boards/stm32h723.repl
